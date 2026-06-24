@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MediTrack</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="vitals">Vitals</string>
+    <string name="medicines">Medicines</string>
+    <string name="history">History</string>
+    <string name="profile">Profile</string>
+    <string name="sos">SOS</string>
+    <string name="generate_report">Generate Report</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+</resources>
