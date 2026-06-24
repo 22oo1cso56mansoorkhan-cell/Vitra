@@ -11,9 +11,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.meditrack.app.R;
-import com.meditrack.app.database.DatabaseHelper;
-import com.meditrack.app.models.UserProfile;
+import com.example.meditrack.R;
+import com.example.meditrack.database.DatabaseHelper;
+import com.example.meditrack.models.UserProfile;
 
 public class ProfileFragment extends Fragment {
 

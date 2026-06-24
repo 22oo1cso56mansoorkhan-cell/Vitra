@@ -15,16 +15,18 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.example.meditrack.R;
+import com.example.meditrack.database.DatabaseHelper;
+import com.example.meditrack.models.Medicine;
+import com.example.meditrack.models.UserProfile;
+import com.example.meditrack.models.VitalsRecord;
+import com.example.meditrack.utils.PDFGenerator;
+
+// MPAndroidChart imports
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.meditrack.app.R;
-import com.meditrack.app.database.DatabaseHelper;
-import com.meditrack.app.models.Medicine;
-import com.meditrack.app.models.UserProfile;
-import com.meditrack.app.models.VitalsRecord;
-import com.meditrack.app.utils.PDFGenerator;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -87,7 +89,6 @@ public class DashboardFragment extends Fragment {
         List<VitalsRecord> recent = dbHelper.getVitalsBetween(getWeekAgo(), new Date());
         tvSymptomCount.setText(recent.size() + " this week");
 
-        // Show recent vitals
         layoutRecentVitals.removeAllViews();
         List<VitalsRecord> lastFew = dbHelper.getAllVitals();
         int count = 0;

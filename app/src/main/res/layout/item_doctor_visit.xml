@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    app:cardElevation="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/tv_visit_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Jan 1, 2024"
+            android:textSize="12sp"
+            android:textColor="@color/text_secondary" />
+
+        <TextView
+            android:id="@+id/tv_visit_doctor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Doctor: Dr. Smith"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_visit_prescription"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Prescription: Medicine X"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tv_visit_followup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Follow-up: Feb 1, 2024"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

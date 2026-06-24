@@ -12,12 +12,12 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.meditrack.fragments.DashboardFragment;
+import com.example.meditrack.fragments.MedicineFragment;
+import com.example.meditrack.fragments.ProfileFragment;
+import com.example.meditrack.fragments.VitalsFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.meditrack.app.fragments.DashboardFragment;
-import com.meditrack.app.fragments.HistoryFragment;
-import com.meditrack.app.fragments.MedicineFragment;
-import com.meditrack.app.fragments.ProfileFragment;
-import com.meditrack.app.fragments.VitalsFragment;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
                 loadFragment(new MedicineFragment());
                 return true;
             } else if (id == R.id.nav_history) {
-                loadFragment(new HistoryFragment());
+                loadFragment(new com.meditrack.app.fragments.HistoryFragment());
                 return true;
             } else if (id == R.id.nav_profile) {
                 loadFragment(new ProfileFragment());

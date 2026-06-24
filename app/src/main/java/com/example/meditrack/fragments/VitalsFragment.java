@@ -14,10 +14,10 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.meditrack.app.R;
-import com.meditrack.app.adapters.VitalsAdapter;
-import com.meditrack.app.database.DatabaseHelper;
-import com.meditrack.app.models.VitalsRecord;
+import com.example.meditrack.R;
+import com.example.meditrack.adapters.VitalsAdapter;
+import com.example.meditrack.database.DatabaseHelper;
+import com.example.meditrack.models.VitalsRecord;
 
 import java.util.Date;
 import java.util.List;

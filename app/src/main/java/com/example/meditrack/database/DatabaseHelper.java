@@ -6,12 +6,13 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.meditrack.app.models.DoctorVisit;
-import com.meditrack.app.models.Medicine;
-import com.meditrack.app.models.Prescription;
-import com.meditrack.app.models.Symptom;
-import com.meditrack.app.models.UserProfile;
-import com.meditrack.app.models.VitalsRecord;
+import com.example.meditrack.models.DoctorVisit;
+import com.example.meditrack.models.Medicine;
+import com.example.meditrack.models.Prescription;
+import com.example.meditrack.models.Symptom;
+import com.example.meditrack.models.UserProfile;
+import com.example.meditrack.models.VitalsRecord;
+
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

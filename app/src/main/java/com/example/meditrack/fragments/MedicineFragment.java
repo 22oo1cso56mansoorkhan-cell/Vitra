@@ -21,11 +21,12 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.meditrack.app.R;
-import com.meditrack.app.adapters.MedicineAdapter;
-import com.meditrack.app.database.DatabaseHelper;
-import com.meditrack.app.models.Medicine;
-import com.meditrack.app.services.MedicineReceiver;
+import com.example.meditrack.R;
+import com.example.meditrack.adapters.MedicineAdapter;
+import com.example.meditrack.database.DatabaseHelper;
+import com.example.meditrack.models.Medicine;
+import com.example.meditrack.services.MedicineReceiver;
+
 
 import java.util.Calendar;
 import java.util.Date;
