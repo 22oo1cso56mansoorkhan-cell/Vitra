@@ -443,8 +443,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // =====================================================
-    // ============ SYMPTOMS METHODS ============
-    // =====================================================
+// ============ SYMPTOMS METHODS ============
+// =====================================================
 
     public long addSymptom(Symptom symptom) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -462,6 +462,108 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         List<Symptom> list = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_SYMPTOMS, null, null, null, null, null, "date DESC");
+        while (cursor.moveToNext()) {
+            Symptom s = new Symptom();
+            s.id = cursor.getInt(cursor.getColumnIndexOrThrow("id"));
+            try {
+                String dateStr = cursor.getString(cursor.getColumnIndexOrThrow("date"));
+                if (dateStr != null && !dateStr.isEmpty()) {
+                    s.date = dateFormat.parse(dateStr);
+                } else {
+                    s.date = new Date();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                s.date = new Date();
+            }
+            s.symptomName = cursor.getString(cursor.getColumnIndexOrThrow("symptom_name"));
+            s.severity = cursor.getInt(cursor.getColumnIndexOrThrow("severity"));
+            s.notes = cursor.getString(cursor.getColumnIndexOrThrow("notes"));
+            list.add(s);
+        }
+        cursor.close();
+        db.close();
+        return list;
+    }
+
+    // Add this new method to get symptoms by date range
+    public List<Symptom> getSymptomsBetween(Date start, Date end) {
+        List<Symptom> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT * FROM " + TABLE_SYMPTOMS +
+                " WHERE date BETWEEN ? AND ? ORDER BY date DESC";
+        Cursor cursor = db.rawQuery(query, new String[]{
+                dateFormat.format(start), dateFormat.format(end)
+        });
+        while (cursor.moveToNext()) {
+            Symptom s = new Symptom();
+            s.id = cursor.getInt(cursor.getColumnIndexOrThrow("id"));
+            try {
+                String dateStr = cursor.getString(cursor.getColumnIndexOrThrow("date"));
+                if (dateStr != null && !dateStr.isEmpty()) {
+                    s.date = dateFormat.parse(dateStr);
+                } else {
+                    s.date = new Date();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                s.date = new Date();
+            }
+            s.symptomName = cursor.getString(cursor.getColumnIndexOrThrow("symptom_name"));
+            s.severity = cursor.getInt(cursor.getColumnIndexOrThrow("severity"));
+            s.notes = cursor.getString(cursor.getColumnIndexOrThrow("notes"));
+            list.add(s);
+        }
+        cursor.close();
+        db.close();
+        return list;
+    }
+
+    // Add this method to get symptoms by severity level
+    public List<Symptom> getSymptomsBySeverity(int minSeverity) {
+        List<Symptom> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT * FROM " + TABLE_SYMPTOMS +
+                " WHERE severity >= ? ORDER BY date DESC";
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(minSeverity)});
+        while (cursor.moveToNext()) {
+            Symptom s = new Symptom();
+            s.id = cursor.getInt(cursor.getColumnIndexOrThrow("id"));
+            try {
+                String dateStr = cursor.getString(cursor.getColumnIndexOrThrow("date"));
+                if (dateStr != null && !dateStr.isEmpty()) {
+                    s.date = dateFormat.parse(dateStr);
+                } else {
+                    s.date = new Date();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                s.date = new Date();
+            }
+            s.symptomName = cursor.getString(cursor.getColumnIndexOrThrow("symptom_name"));
+            s.severity = cursor.getInt(cursor.getColumnIndexOrThrow("severity"));
+            s.notes = cursor.getString(cursor.getColumnIndexOrThrow("notes"));
+            list.add(s);
+        }
+        cursor.close();
+        db.close();
+        return list;
+    }
+
+    // Add this method to delete a symptom
+    public void deleteSymptom(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_SYMPTOMS, "id = ?", new String[]{String.valueOf(id)});
+        db.close();
+    }
+
+    // Add this method to get symptoms by name search
+    public List<Symptom> searchSymptoms(String searchQuery) {
+        List<Symptom> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT * FROM " + TABLE_SYMPTOMS +
+                " WHERE symptom_name LIKE ? ORDER BY date DESC";
+        Cursor cursor = db.rawQuery(query, new String[]{"%" + searchQuery + "%"});
         while (cursor.moveToNext()) {
             Symptom s = new Symptom();
             s.id = cursor.getInt(cursor.getColumnIndexOrThrow("id"));
