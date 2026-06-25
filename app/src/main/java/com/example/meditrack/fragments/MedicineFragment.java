@@ -27,7 +27,6 @@ import com.example.meditrack.database.DatabaseHelper;
 import com.example.meditrack.models.Medicine;
 import com.example.meditrack.services.MedicineReceiver;
 
-
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -120,8 +119,15 @@ public class MedicineFragment extends Fragment {
         cal.add(Calendar.HOUR_OF_DAY, medicine.intervalHours);
         medicine.nextDoseTime = cal.getTime();
 
-        long insertedId = dbHelper.addMedicine(medicine);
-        medicine.id = (int) insertedId;
+        // FIX: Get the ID after insertion
+        long id = dbHelper.addMedicine(medicine);
+        if (id == -1) {
+            Toast.makeText(getContext(), "Failed to add medicine", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        medicine.id = (int) id;  // Assign the generated ID
+
+        // Schedule reminder with valid ID
         scheduleMedicineReminder(medicine);
 
         Toast.makeText(getContext(), "Medicine added!", Toast.LENGTH_SHORT).show();
@@ -132,22 +138,41 @@ public class MedicineFragment extends Fragment {
     }
 
     private void scheduleMedicineReminder(Medicine medicine) {
-        AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(getContext(), MedicineReceiver.class);
-        intent.putExtra("medicine_name", medicine.name);
-        intent.putExtra("medicine_dose", medicine.dose);
+        Context context = getContext();
+        if (context == null) {
+            return; // Safety check
+        }
 
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(),
-                medicine.id, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        try {
+            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            if (alarmManager == null) {
+                return; // Safety check
+            }
 
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(medicine.nextDoseTime);
+            Intent intent = new Intent(context, MedicineReceiver.class);
+            intent.putExtra("medicine_name", medicine.name);
+            intent.putExtra("medicine_dose", medicine.dose);
+            intent.putExtra("medicine_id", medicine.id);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,
-                    cal.getTimeInMillis(), pendingIntent);
-        } else {
-            alarmManager.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
+            // FIX: Use unique request code based on medicine ID
+            int requestCode = medicine.id;
+
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(context,
+                    requestCode, intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(medicine.nextDoseTime);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,
+                        cal.getTimeInMillis(), pendingIntent);
+            } else {
+                alarmManager.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(context, "Failed to schedule reminder", Toast.LENGTH_SHORT).show();
         }
     }
 
