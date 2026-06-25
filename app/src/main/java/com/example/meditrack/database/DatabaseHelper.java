@@ -7,12 +7,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.meditrack.models.DoctorVisit;
+import com.example.meditrack.models.EmergencyContact;
 import com.example.meditrack.models.Medicine;
 import com.example.meditrack.models.Prescription;
 import com.example.meditrack.models.Symptom;
 import com.example.meditrack.models.UserProfile;
 import com.example.meditrack.models.VitalsRecord;
-
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -23,15 +23,17 @@ import java.util.Locale;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "meditrack.db";
-    private static final int DB_VERSION = 1;
+    private static final int DB_VERSION = 2;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
+    // Table constants
     private static final String TABLE_USER = "user_profile";
     private static final String TABLE_VITALS = "vitals";
     private static final String TABLE_MEDICINES = "medicines";
     private static final String TABLE_SYMPTOMS = "symptoms";
     private static final String TABLE_DOCTOR = "doctor_visits";
     private static final String TABLE_PRESCRIPTIONS = "prescriptions";
+    private static final String TABLE_EMERGENCY_CONTACTS = "emergency_contacts";
 
     public DatabaseHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -39,6 +41,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        // Create User Profile Table
         String createUser = "CREATE TABLE " + TABLE_USER + " (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "name TEXT, age INTEGER, blood_group TEXT, " +
@@ -46,6 +49,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "emergency_name TEXT, emergency_phone TEXT)";
         db.execSQL(createUser);
 
+        // Create Vitals Table
         String createVitals = "CREATE TABLE " + TABLE_VITALS + " (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "date TEXT, systolic INTEGER, diastolic INTEGER, " +
@@ -53,6 +57,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "temperature REAL, weight REAL, spo2 INTEGER, notes TEXT)";
         db.execSQL(createVitals);
 
+        // Create Medicines Table
         String createMedicines = "CREATE TABLE " + TABLE_MEDICINES + " (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "name TEXT, dose TEXT, frequency TEXT, " +
@@ -60,70 +65,198 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "next_dose_time TEXT, is_active INTEGER, dose_count INTEGER)";
         db.execSQL(createMedicines);
 
+        // Create Symptoms Table
         String createSymptoms = "CREATE TABLE " + TABLE_SYMPTOMS + " (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "date TEXT, symptom_name TEXT, severity INTEGER, notes TEXT)";
         db.execSQL(createSymptoms);
 
+        // Create Doctor Visits Table
         String createDoctor = "CREATE TABLE " + TABLE_DOCTOR + " (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "date TEXT, doctor_name TEXT, prescription TEXT, " +
                 "follow_up_date TEXT, notes TEXT)";
         db.execSQL(createDoctor);
 
+        // Create Prescriptions Table
         String createPrescriptions = "CREATE TABLE " + TABLE_PRESCRIPTIONS + " (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "date TEXT, doctor_name TEXT, file_path TEXT, notes TEXT)";
         db.execSQL(createPrescriptions);
+
+        // Create Emergency Contacts Table
+        String createEmergencyContacts = "CREATE TABLE " + TABLE_EMERGENCY_CONTACTS + " (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "profile_id INTEGER, " +
+                "name TEXT, " +
+                "phone TEXT, " +
+                "FOREIGN KEY(profile_id) REFERENCES " + TABLE_USER + "(id))";
+        db.execSQL(createEmergencyContacts);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_VITALS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MEDICINES);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SYMPTOMS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_DOCTOR);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRESCRIPTIONS);
-        onCreate(db);
+        if (oldVersion < 2) {
+            String createEmergencyContacts = "CREATE TABLE " + TABLE_EMERGENCY_CONTACTS + " (" +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "profile_id INTEGER, " +
+                    "name TEXT, " +
+                    "phone TEXT, " +
+                    "FOREIGN KEY(profile_id) REFERENCES " + TABLE_USER + "(id))";
+            db.execSQL(createEmergencyContacts);
+        }
     }
 
-    // ============ USER PROFILE ============
-    public void saveProfile(UserProfile profile) {
+    // =====================================================
+    // ============ USER PROFILE METHODS ============
+    // =====================================================
+
+    public long saveProfile(UserProfile profile) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_USER, null, null);
-        ContentValues values = new ContentValues();
-        values.put("name", profile.name);
-        values.put("age", profile.age);
-        values.put("blood_group", profile.bloodGroup);
-        values.put("conditions", profile.conditions);
-        values.put("allergies", profile.allergies);
-        values.put("emergency_name", profile.emergencyName);
-        values.put("emergency_phone", profile.emergencyPhone);
-        db.insert(TABLE_USER, null, values);
-        db.close();
+        long id = -1;
+
+        try {
+            Cursor cursor = db.query(TABLE_USER,
+                    new String[]{"id"},
+                    null, null, null, null, null);
+
+            ContentValues values = new ContentValues();
+            values.put("name", profile.name);
+            values.put("age", profile.age);
+            values.put("blood_group", profile.bloodGroup);
+            values.put("conditions", profile.conditions);
+            values.put("allergies", profile.allergies);
+            values.put("emergency_name", profile.emergencyName);
+            values.put("emergency_phone", profile.emergencyPhone);
+
+            if (cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                id = cursor.getLong(cursor.getColumnIndexOrThrow("id"));
+                db.update(TABLE_USER, values, "id = ?", new String[]{String.valueOf(id)});
+            } else {
+                id = db.insert(TABLE_USER, null, values);
+            }
+            cursor.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            id = -1;
+        } finally {
+            db.close();
+        }
+        return id;
     }
 
     public UserProfile getProfile() {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_USER, null, null, null, null, null, null);
-        UserProfile profile = new UserProfile();
-        if (cursor.moveToFirst()) {
-            profile.id = cursor.getInt(cursor.getColumnIndexOrThrow("id"));
-            profile.name = cursor.getString(cursor.getColumnIndexOrThrow("name"));
-            profile.age = cursor.getInt(cursor.getColumnIndexOrThrow("age"));
-            profile.bloodGroup = cursor.getString(cursor.getColumnIndexOrThrow("blood_group"));
-            profile.conditions = cursor.getString(cursor.getColumnIndexOrThrow("conditions"));
-            profile.allergies = cursor.getString(cursor.getColumnIndexOrThrow("allergies"));
-            profile.emergencyName = cursor.getString(cursor.getColumnIndexOrThrow("emergency_name"));
-            profile.emergencyPhone = cursor.getString(cursor.getColumnIndexOrThrow("emergency_phone"));
+        UserProfile profile = null;
+
+        try {
+            Cursor cursor = db.query(TABLE_USER, null, null, null, null, null, null);
+            if (cursor.moveToFirst()) {
+                profile = new UserProfile();
+                profile.id = cursor.getInt(cursor.getColumnIndexOrThrow("id"));
+                profile.name = cursor.getString(cursor.getColumnIndexOrThrow("name"));
+                profile.age = cursor.getInt(cursor.getColumnIndexOrThrow("age"));
+                profile.bloodGroup = cursor.getString(cursor.getColumnIndexOrThrow("blood_group"));
+                profile.conditions = cursor.getString(cursor.getColumnIndexOrThrow("conditions"));
+                profile.allergies = cursor.getString(cursor.getColumnIndexOrThrow("allergies"));
+                profile.emergencyName = cursor.getString(cursor.getColumnIndexOrThrow("emergency_name"));
+                profile.emergencyPhone = cursor.getString(cursor.getColumnIndexOrThrow("emergency_phone"));
+            }
+            cursor.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            profile = null;
+        } finally {
+            db.close();
         }
-        cursor.close();
-        db.close();
+
+        if (profile == null) {
+            profile = new UserProfile();
+            profile.id = -1;
+        }
         return profile;
     }
 
-    // ============ VITALS ============
+    // =====================================================
+    // ============ EMERGENCY CONTACTS METHODS ============
+    // =====================================================
+
+    public List<EmergencyContact> getEmergencyContacts(long profileId) {
+        List<EmergencyContact> contacts = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        try {
+            Cursor cursor = db.query(TABLE_EMERGENCY_CONTACTS,
+                    null,
+                    "profile_id = ?",
+                    new String[]{String.valueOf(profileId)},
+                    null, null, null);
+
+            if (cursor.moveToFirst()) {
+                do {
+                    EmergencyContact contact = new EmergencyContact();
+                    contact.id = cursor.getLong(cursor.getColumnIndexOrThrow("id"));
+                    contact.profileId = cursor.getLong(cursor.getColumnIndexOrThrow("profile_id"));
+                    contact.name = cursor.getString(cursor.getColumnIndexOrThrow("name"));
+                    contact.phone = cursor.getString(cursor.getColumnIndexOrThrow("phone"));
+                    contacts.add(contact);
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            db.close();
+        }
+        return contacts;
+    }
+
+    public long saveEmergencyContact(EmergencyContact contact) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        long id = -1;
+
+        try {
+            ContentValues values = new ContentValues();
+            values.put("profile_id", contact.profileId);
+            values.put("name", contact.name);
+            values.put("phone", contact.phone);
+            id = db.insert(TABLE_EMERGENCY_CONTACTS, null, values);
+        } catch (Exception e) {
+            e.printStackTrace();
+            id = -1;
+        } finally {
+            db.close();
+        }
+        return id;
+    }
+
+    public void deleteEmergencyContacts(long profileId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        try {
+            db.delete(TABLE_EMERGENCY_CONTACTS, "profile_id = ?", new String[]{String.valueOf(profileId)});
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            db.close();
+        }
+    }
+
+    public void deleteEmergencyContact(long contactId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        try {
+            db.delete(TABLE_EMERGENCY_CONTACTS, "id = ?", new String[]{String.valueOf(contactId)});
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            db.close();
+        }
+    }
+
+    // =====================================================
+    // ============ VITALS METHODS ============
+    // =====================================================
+
     public void addVitals(VitalsRecord vitals) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -194,7 +327,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return list;
     }
 
-    // ============ MEDICINES ============
+    // =====================================================
+    // ============ MEDICINES METHODS ============
+    // =====================================================
+
     public void addMedicine(Medicine medicine) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -258,7 +394,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    // ============ SYMPTOMS ============
+    // =====================================================
+    // ============ SYMPTOMS METHODS ============
+    // =====================================================
+
     public void addSymptom(Symptom symptom) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -290,7 +429,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return list;
     }
 
-    // ============ DOCTOR VISITS ============
+    // =====================================================
+    // ============ DOCTOR VISITS METHODS ============
+    // =====================================================
+
     public void addDoctorVisit(DoctorVisit visit) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -325,7 +467,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return list;
     }
 
-    // ============ PRESCRIPTIONS ============
+    // =====================================================
+    // ============ PRESCRIPTIONS METHODS ============
+    // =====================================================
+
     public void addPrescription(Prescription prescription) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
