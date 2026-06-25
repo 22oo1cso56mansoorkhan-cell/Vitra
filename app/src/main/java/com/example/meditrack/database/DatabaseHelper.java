@@ -195,7 +195,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // ============ MEDICINES ============
-    public void addMedicine(Medicine medicine) {
+    public long addMedicine(Medicine medicine) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("name", medicine.name);
@@ -207,8 +207,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put("next_dose_time", medicine.nextDoseTime != null ? dateFormat.format(medicine.nextDoseTime) : null);
         values.put("is_active", medicine.isActive ? 1 : 0);
         values.put("dose_count", medicine.doseCount);
-        db.insert(TABLE_MEDICINES, null, values);
+        long id = db.insert(TABLE_MEDICINES, null, values);
         db.close();
+        return id;
     }
 
     public List<Medicine> getAllMedicines() {

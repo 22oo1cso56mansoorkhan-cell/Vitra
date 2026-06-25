@@ -34,13 +34,14 @@ public class MedicineReceiver extends BroadcastReceiver {
                 .setContentText("Time to take " + medicineName + " (" + medicineDose + ")")
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setSound(android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_ALARM))
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
                 .build();
 
         NotificationManager notificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(1, notification);
+        notificationManager.notify((int) System.currentTimeMillis(),notification);
     }
 
     private void createNotificationChannel(Context context) {

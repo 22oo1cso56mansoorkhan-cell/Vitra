@@ -120,7 +120,8 @@ public class MedicineFragment extends Fragment {
         cal.add(Calendar.HOUR_OF_DAY, medicine.intervalHours);
         medicine.nextDoseTime = cal.getTime();
 
-        dbHelper.addMedicine(medicine);
+        long insertedId = dbHelper.addMedicine(medicine);
+        medicine.id = (int) insertedId;
         scheduleMedicineReminder(medicine);
 
         Toast.makeText(getContext(), "Medicine added!", Toast.LENGTH_SHORT).show();
