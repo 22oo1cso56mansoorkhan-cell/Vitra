@@ -1,6 +1,7 @@
 package com.example.meditrack.utils;
 
 import android.content.Context;
+import android.media.MediaScannerConnection;  // NEW IMPORT
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
@@ -26,6 +27,16 @@ public class PDFGenerator {
 
     public static String generateReport(Context context, DatabaseHelper dbHelper) {
         try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
+            String fileName = "MediTrack_Report_" + dateFormat.format(new Date()) + ".pdf";
+
+            File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "MediTrackReports");
+
+            if (!dir.exists()) {
+                if (!dir.mkdirs()) {
+                    Log.e(TAG, "Failed to create directory");
+                    return null;
+                }
             SimpleDateFormat fileFormat = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
 
             String fileName = "MediTrack_Report_" + fileFormat.format(new Date()) + ".pdf";
@@ -198,6 +209,14 @@ public class PDFGenerator {
 
             fos.close();
 
+            MediaScannerConnection.scanFile(
+                    context,
+                    new String[]{file.getAbsolutePath()},
+                    null,
+                    null
+            );
+
+            return file.getAbsolutePath();
             return pdfFile.getAbsolutePath();
 
         } catch (Exception e) {
