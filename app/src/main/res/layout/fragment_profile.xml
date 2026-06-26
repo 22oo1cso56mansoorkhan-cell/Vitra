@@ -22,18 +22,20 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
+                <!-- Main Profile Section -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
-                    android:text="Profile"
+                    android:text="👤 Profile"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Full Name">
+                    android:hint="Full Name"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_name"
@@ -44,7 +46,8 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Age">
+                    android:hint="Age"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_age"
@@ -56,7 +59,8 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Blood Group">
+                    android:hint="Blood Group"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_blood_group"
@@ -67,7 +71,8 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Medical Conditions">
+                    android:hint="Medical Conditions"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_conditions"
@@ -79,7 +84,8 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Allergies">
+                    android:hint="Allergies"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_allergies"
@@ -88,45 +94,51 @@
                         android:inputType="textMultiLine" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <!-- Emergency Contacts Section -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="Emergency Contact"
-                    android:textSize="14sp"
+                    android:layout_marginTop="16dp"
+                    android:text="📞 Emergency Contacts"
+                    android:textSize="16sp"
                     android:textStyle="bold" />
 
-                <com.google.android.material.textfield.TextInputLayout
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Add multiple contacts for emergencies"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary" />
+
+                <!-- Container for dynamic emergency contacts -->
+                <LinearLayout
+                    android:id="@+id/emergency_contacts_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Contact Name">
+                    android:orientation="vertical" />
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/et_emergency_name"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
+                <!-- Add Contact Button -->
+                <Button
+                    android:id="@+id/btn_add_emergency_contact"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Contact Phone">
+                    android:layout_marginTop="8dp"
+                    android:backgroundTint="@color/primary_light"
+                    android:text="➕ Add Another Contact"
+                    android:textColor="@color/primary"
+                    android:textStyle="bold" />
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/et_emergency_phone"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="phone" />
-                </com.google.android.material.textfield.TextInputLayout>
-
+                <!-- Save Profile Button -->
                 <Button
                     android:id="@+id/btn_save_profile"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="16dp"
                     android:backgroundTint="@color/primary"
-                    android:text="Save Profile"
-                    android:textColor="@color/surface" />
+                    android:text="💾 Save Profile"
+                    android:textColor="@color/surface"
+                    android:textStyle="bold" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

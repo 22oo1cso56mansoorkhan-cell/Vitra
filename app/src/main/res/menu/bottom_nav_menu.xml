@@ -10,12 +10,12 @@
         android:title="Vitals" />
     <item
         android:id="@+id/nav_medicines"
-        android:icon="@drawable/ic_medicine"
+        android:icon="@drawable/ic_medicines"
         android:title="Medicines" />
     <item
-        android:id="@+id/nav_history"
-        android:icon="@drawable/ic_history"
-        android:title="History" />
+        android:id="@+id/nav_symptoms"
+        android:icon="@drawable/ic_symptoms"
+        android:title="Symptoms" />
     <item
         android:id="@+id/nav_profile"
         android:icon="@drawable/ic_profile"

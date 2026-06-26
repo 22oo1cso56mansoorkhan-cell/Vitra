@@ -17,14 +17,14 @@
             android:layout_height="wrap_content"
             android:padding="8dp"
             android:text="Hello, User! 👋"
-            android:textSize="24sp"
-            android:textStyle="bold" />
+            style="@style/TextAppearance.Material3.HeadlineSmall" />
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            app:cardElevation="4dp">
+            app:cardElevation="4dp"
+            app:cardCornerRadius="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -56,7 +56,8 @@
                 <View
                     android:layout_width="1dp"
                     android:layout_height="40dp"
-                    android:background="@color/text_secondary" />
+                    android:background="@color/text_secondary"
+                    android:alpha="0.15" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -82,7 +83,8 @@
                 <View
                     android:layout_width="1dp"
                     android:layout_height="40dp"
-                    android:background="@color/text_secondary" />
+                    android:background="@color/text_secondary"
+                    android:alpha="0.15" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -112,7 +114,8 @@
             android:layout_width="match_parent"
             android:layout_height="250dp"
             android:layout_marginTop="16dp"
-            app:cardElevation="4dp">
+            app:cardElevation="4dp"
+            app:cardCornerRadius="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -125,8 +128,7 @@
                     android:layout_height="wrap_content"
                     android:padding="8dp"
                     android:text="BP Trend (Last 30)"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                    style="@style/TextAppearance.Material3.TitleMedium" />
 
                 <com.github.mikephil.charting.charts.LineChart
                     android:id="@+id/chart_vitals"
@@ -140,7 +142,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            app:cardElevation="4dp">
+            app:cardElevation="4dp"
+            app:cardCornerRadius="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -152,8 +155,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Recent Vitals"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                    style="@style/TextAppearance.Material3.TitleMedium" />
 
                 <LinearLayout
                     android:id="@+id/layout_recent_vitals"
@@ -171,7 +173,7 @@
             android:layout_marginTop="16dp"
             android:orientation="horizontal">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_sos"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -181,7 +183,7 @@
                 android:text="SOS"
                 android:textColor="@color/surface" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_generate_report"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
