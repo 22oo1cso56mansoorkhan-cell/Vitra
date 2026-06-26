@@ -1,6 +1,10 @@
 package com.example.meditrack.utils;
 
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Typeface;
+import android.graphics.pdf.PdfDocument;
 import android.os.Environment;
 import android.util.Log;
 
@@ -22,81 +26,184 @@ public class PDFGenerator {
 
     public static String generateReport(Context context, DatabaseHelper dbHelper) {
         try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
-            String fileName = "MediTrack_Report_" + dateFormat.format(new Date()) + ".pdf";
+            SimpleDateFormat fileFormat = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
 
-            // Create directory
-            File dir = new File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "MediTrackReports");
-            if (!dir.exists()) {
-                if (!dir.mkdirs()) {
-                    Log.e(TAG, "Failed to create directory");
-                    return null;
-                }
+            String fileName = "MediTrack_Report_" + fileFormat.format(new Date()) + ".pdf";
+
+            File documentsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
+
+            File reportDir = new File(documentsDir, "MediTrackReports");
+
+            if (!reportDir.exists()) {
+                reportDir.mkdirs();
             }
 
-            File file = new File(dir, fileName);
+            File pdfFile = new File(reportDir, fileName);
 
-            // Simple text report instead of PDF (to avoid iText issues)
-            StringBuilder report = new StringBuilder();
-            report.append("====================================\n");
-            report.append("        MEDITRACK HEALTH REPORT      \n");
-            report.append("====================================\n\n");
+            PdfDocument pdfDocument = new PdfDocument();
 
-            report.append("Generated on: ").append(new SimpleDateFormat("MMMM dd, yyyy HH:mm", Locale.getDefault()).format(new Date())).append("\n\n");
+            PdfDocument.PageInfo pageInfo =
+                    new PdfDocument.PageInfo.Builder(595, 842, 1).create();
 
-            // User Profile
+            PdfDocument.Page page = pdfDocument.startPage(pageInfo);
+
+            Canvas canvas = page.getCanvas();
+
+            Paint titlePaint = new Paint();
+            titlePaint.setTextSize(22);
+            titlePaint.setTypeface(Typeface.DEFAULT_BOLD);
+
+            Paint headingPaint = new Paint();
+            headingPaint.setTextSize(16);
+            headingPaint.setTypeface(Typeface.DEFAULT_BOLD);
+
+            Paint textPaint = new Paint();
+            textPaint.setTextSize(12);
+
+            int y = 50;
+
+            canvas.drawText("MediTrack Health Report", 40, y, titlePaint);
+
+            y += 30;
+
+            String generated =
+                    new SimpleDateFormat(
+                            "dd MMM yyyy HH:mm",
+                            Locale.getDefault())
+                            .format(new Date());
+
+            canvas.drawText("Generated on: " + generated, 40, y, textPaint);
+
+            y += 40;
+
+            // -----------------------------
+            // Patient Information
+            // -----------------------------
+
             UserProfile profile = dbHelper.getProfile();
+
+            canvas.drawText("Patient Information", 40, y, headingPaint);
+
+            y += 25;
+
             if (profile != null && !profile.name.isEmpty()) {
-                report.append("PATIENT INFORMATION\n");
-                report.append("------------------------------------\n");
-                report.append("Name: ").append(profile.name).append("\n");
-                report.append("Age: ").append(profile.age).append("\n");
-                report.append("Blood Group: ").append(profile.bloodGroup).append("\n");
-                report.append("Conditions: ").append(profile.conditions).append("\n");
-                report.append("Allergies: ").append(profile.allergies).append("\n");
-                report.append("Emergency Contact: ").append(profile.emergencyName).append(" (").append(profile.emergencyPhone).append(")\n\n");
+
+                canvas.drawText("Name : " + profile.name, 50, y, textPaint);
+                y += 20;
+
+                canvas.drawText("Age : " + profile.age, 50, y, textPaint);
+                y += 20;
+
+                canvas.drawText("Blood Group : " + profile.bloodGroup, 50, y, textPaint);
+                y += 20;
+
+                canvas.drawText("Conditions : " + profile.conditions, 50, y, textPaint);
+                y += 20;
+
+                canvas.drawText("Allergies : " + profile.allergies, 50, y, textPaint);
+                y += 20;
+
+                canvas.drawText(
+                        "Emergency : "
+                                + profile.emergencyName
+                                + " ("
+                                + profile.emergencyPhone
+                                + ")",
+                        50,
+                        y,
+                        textPaint);
+
+                y += 35;
             }
 
+            // -----------------------------
             // Vitals
-            Calendar cal = Calendar.getInstance();
-            cal.add(Calendar.DAY_OF_MONTH, -30);
-            Date startDate = cal.getTime();
-            Date endDate = new Date();
+            // -----------------------------
 
-            List<VitalsRecord> vitals = dbHelper.getVitalsBetween(startDate, endDate);
+            canvas.drawText("Vitals History (Last 30 Days)", 40, y, headingPaint);
 
-            if (!vitals.isEmpty()) {
-                report.append("VITALS HISTORY (Last 30 Days)\n");
-                report.append("------------------------------------\n");
-                SimpleDateFormat displayFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
+            y += 25;
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.DAY_OF_MONTH, -30);
+
+            List<VitalsRecord> vitals =
+                    dbHelper.getVitalsBetween(calendar.getTime(), new Date());
+
+            SimpleDateFormat display =
+                    new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+
+            if (vitals.isEmpty()) {
+
+                canvas.drawText(
+                        "No vitals available.",
+                        50,
+                        y,
+                        textPaint);
+
+            } else {
 
                 for (VitalsRecord v : vitals) {
-                    report.append(displayFormat.format(v.date)).append(": ");
-                    report.append("BP ").append(v.systolic).append("/").append(v.diastolic);
-                    report.append(" | Sugar ").append(v.bloodSugar).append(" mg/dL");
-                    report.append(" | Temp ").append(v.temperature).append("°C");
-                    report.append(" | Weight ").append(v.weight).append(" kg");
-                    report.append(" | SpO2 ").append(v.spo2).append("%\n");
+
+                    canvas.drawText(
+                            display.format(v.date),
+                            50,
+                            y,
+                            textPaint);
+
+                    y += 18;
+
+                    canvas.drawText(
+                            "BP: "
+                                    + v.systolic
+                                    + "/"
+                                    + v.diastolic
+                                    + "   Sugar: "
+                                    + v.bloodSugar
+                                    + " mg/dL",
+                            70,
+                            y,
+                            textPaint);
+
+                    y += 18;
+
+                    canvas.drawText(
+                            "Temp: "
+                                    + v.temperature
+                                    + "°C   Weight: "
+                                    + v.weight
+                                    + " kg   SpO₂: "
+                                    + v.spo2
+                                    + "%",
+                            70,
+                            y,
+                            textPaint);
+
+                    y += 30;
+
+                    // Prevent writing beyond page
+                    if (y > 780) {
+                        break;
+                    }
                 }
-                report.append("\n");
-            } else {
-                report.append("No vitals recorded in the last 30 days.\n\n");
             }
 
-            report.append("====================================\n");
-            report.append("End of Report\n");
-            report.append("====================================\n");
+            pdfDocument.finishPage(page);
 
-            // Write to file
-            FileOutputStream fos = new FileOutputStream(file);
-            fos.write(report.toString().getBytes());
+            FileOutputStream fos = new FileOutputStream(pdfFile);
+
+            pdfDocument.writeTo(fos);
+
+            pdfDocument.close();
+
             fos.close();
 
-            return file.getAbsolutePath();
+            return pdfFile.getAbsolutePath();
 
         } catch (Exception e) {
-            Log.e(TAG, "Error generating report: " + e.getMessage());
-            e.printStackTrace();
+
+            Log.e(TAG, "PDF Error", e);
+
             return null;
         }
     }

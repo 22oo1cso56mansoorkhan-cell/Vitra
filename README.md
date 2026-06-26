@@ -74,7 +74,8 @@ Patients with chronic illnesses often face challenges:
 - One-tap report generation
 - Summary of vitals, medicines, and symptoms
 - Selectable date range
-- Shareable with doctors
+- Saves reports locally to Documents/MediTrackReports
+- Standard PDF format that can be viewed or shared with any PDF reader
 
 ### 9. 🆘 Emergency SOS
 - One-tap emergency button
@@ -96,7 +97,7 @@ Patients with chronic illnesses often face challenges:
 |---------|---------|
 | SQLite | Offline-first local database |
 | MPAndroidChart | Interactive charts and graphs |
-| iText7 | PDF report generation |
+| Android PdfDocument API | Native PDF report generation |
 | Material Design Components | Modern UI elements |
 | AndroidX | Jetpack libraries support |
 
@@ -110,9 +111,6 @@ dependencies {
     
     // Charts
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
-    
-    // PDF Generation
-    implementation 'com.itextpdf:itext7-core:7.2.5'
     
     // Image Picker
     implementation 'com.github.dhaval2404:imagepicker:2.1'
