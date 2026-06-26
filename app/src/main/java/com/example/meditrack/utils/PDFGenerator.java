@@ -1,6 +1,7 @@
 package com.example.meditrack.utils;
 
 import android.content.Context;
+import android.media.MediaScannerConnection;  // NEW IMPORT
 import android.os.Environment;
 import android.util.Log;
 
@@ -25,8 +26,8 @@ public class PDFGenerator {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
             String fileName = "MediTrack_Report_" + dateFormat.format(new Date()) + ".pdf";
 
-            // Create directory
-            File dir = new File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "MediTrackReports");
+            File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "MediTrackReports");
+
             if (!dir.exists()) {
                 if (!dir.mkdirs()) {
                     Log.e(TAG, "Failed to create directory");
@@ -91,6 +92,13 @@ public class PDFGenerator {
             FileOutputStream fos = new FileOutputStream(file);
             fos.write(report.toString().getBytes());
             fos.close();
+
+            MediaScannerConnection.scanFile(
+                    context,
+                    new String[]{file.getAbsolutePath()},
+                    null,
+                    null
+            );
 
             return file.getAbsolutePath();
 
