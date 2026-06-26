@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -24,6 +25,17 @@ public class HistoryDoctorFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_history_doctor, container, false);
 
+        // === NEW: Add button to open AddDoctorVisitFragment ===
+        Button btnAdd = view.findViewById(R.id.btn_add_visit);
+        btnAdd.setOnClickListener(v ->
+                requireActivity()
+                        .getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragment_container, new AddDoctorVisitFragment())
+                        .addToBackStack(null)
+                        .commit()
+        );
+
         DatabaseHelper dbHelper = new DatabaseHelper(getContext());
         List<DoctorVisit> visits = dbHelper.getAllDoctorVisits();
 
@@ -43,14 +55,24 @@ public class HistoryDoctorFragment extends Fragment {
                 TextView tvDoctor = item.findViewById(R.id.tv_visit_doctor);
                 TextView tvPrescription = item.findViewById(R.id.tv_visit_prescription);
                 TextView tvFollowUp = item.findViewById(R.id.tv_visit_followup);
+                TextView tvNotes = item.findViewById(R.id.tv_visit_notes); // NEW
 
                 tvDate.setText(dateFormat.format(v.date));
                 tvDoctor.setText("Doctor: " + v.doctorName);
                 tvPrescription.setText("Prescription: " + v.prescription);
+
                 if (v.followUpDate != null) {
                     tvFollowUp.setText("Follow-up: " + dateFormat.format(v.followUpDate));
                 } else {
                     tvFollowUp.setText("No follow-up scheduled");
+                }
+
+                // === NEW: Display notes if they exist ===
+                if (v.notes != null && !v.notes.trim().isEmpty()) {
+                    tvNotes.setText("📝 " + v.notes);
+                    tvNotes.setVisibility(View.VISIBLE);
+                } else {
+                    tvNotes.setVisibility(View.GONE);
                 }
 
                 layout.addView(item);

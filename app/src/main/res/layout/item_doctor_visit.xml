@@ -43,5 +43,16 @@
             android:textColor="@color/text_secondary"
             android:textSize="12sp" />
 
+        <!-- NEW: Notes TextView -->
+        <TextView
+            android:id="@+id/tv_visit_notes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Notes: Patient has fever"
+            android:textSize="14sp"
+            android:textColor="@color/text_secondary"
+            android:layout_marginTop="4dp"
+            android:visibility="gone" />
+
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
