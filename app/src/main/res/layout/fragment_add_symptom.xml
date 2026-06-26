@@ -3,18 +3,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingBottom="24dp">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Add New Symptom"
-            android:textSize="22sp"
+            style="@style/TextAppearance.Material3.HeadlineSmall"
             android:textStyle="bold"
             android:layout_marginBottom="24dp" />
 
@@ -28,7 +30,10 @@
                 android:id="@+id/et_symptom_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textCapWords" />
+                android:gravity="top|start"
+                android:inputType="textMultiLine"
+                android:minLines="3"
+                android:maxLines="5" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
