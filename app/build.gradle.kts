@@ -44,5 +44,7 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     implementation("androidx.navigation:navigation-fragment:2.7.7")
     implementation("androidx.navigation:navigation-ui:2.7.7")
+    implementation("androidx.navigation:navigation-fragment:2.7.7")
+    implementation("androidx.navigation:navigation-ui:2.7.7")
     androidTestImplementation(libs.espresso.core)
 }

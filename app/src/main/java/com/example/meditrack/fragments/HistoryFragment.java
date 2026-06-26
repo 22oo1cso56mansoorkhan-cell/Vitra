@@ -50,7 +50,6 @@ public class HistoryFragment extends Fragment {
             if (getActivity() != null) {
                 getActivity().getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(R.id.fragment_container, fragment)
                         .addToBackStack("add_symptom")
                         .commit();
             }

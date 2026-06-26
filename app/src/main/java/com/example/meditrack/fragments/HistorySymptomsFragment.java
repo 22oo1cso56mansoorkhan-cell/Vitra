@@ -36,7 +36,6 @@ public class HistorySymptomsFragment extends Fragment {
 
                 // Get FragmentManager and start transaction
                 FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
-                transaction.replace(R.id.fragment_container, addFragment);
                 transaction.addToBackStack(null);
                 transaction.commit();
             } catch (Exception e) {

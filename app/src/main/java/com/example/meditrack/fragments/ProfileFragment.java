@@ -18,6 +18,7 @@ import com.example.meditrack.models.EmergencyContact;
 import com.example.meditrack.models.UserProfile;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,14 +29,15 @@ public class ProfileFragment extends Fragment {
 
     // User info fields
     private EditText etName, etAge, etBloodGroup, etConditions, etAllergies;
-    private Button btnSave;
+    private TextInputLayout tilName, tilAge, tilBloodGroup, tilConditions, tilAllergies;
+    private Button btnSave, btnEdit, btnCancelEdit;
 
-    // Emergency contacts container
+    // Emergency contacts
     private LinearLayout emergencyContactsContainer;
     private Button btnAddEmergencyContact;
-
-    // List to keep track of all emergency contact views
     private List<EmergencyContactView> contactViews = new ArrayList<>();
+
+    private boolean isEditMode = false;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -43,13 +45,23 @@ public class ProfileFragment extends Fragment {
 
         dbHelper = new DatabaseHelper(getContext());
 
-        // Hook up all the input fields
+        // Hook up all the input fields and their layouts
         etName = view.findViewById(R.id.et_name);
         etAge = view.findViewById(R.id.et_age);
         etBloodGroup = view.findViewById(R.id.et_blood_group);
         etConditions = view.findViewById(R.id.et_conditions);
         etAllergies = view.findViewById(R.id.et_allergies);
+
+        // TextInputLayouts for enabling/disabling
+        tilName = view.findViewById(R.id.til_name);
+        tilAge = view.findViewById(R.id.til_age);
+        tilBloodGroup = view.findViewById(R.id.til_blood_group);
+        tilConditions = view.findViewById(R.id.til_conditions);
+        tilAllergies = view.findViewById(R.id.til_allergies);
+
         btnSave = view.findViewById(R.id.btn_save_profile);
+        btnEdit = view.findViewById(R.id.btn_edit_profile);
+        btnCancelEdit = view.findViewById(R.id.btn_cancel_edit);
 
         // Emergency contacts section
         emergencyContactsContainer = view.findViewById(R.id.emergency_contacts_container);
@@ -57,6 +69,17 @@ public class ProfileFragment extends Fragment {
 
         // Load existing profile data
         loadProfile();
+
+        // Setup the "Edit" button
+        btnEdit.setOnClickListener(v -> toggleEditMode(true));
+
+        // Setup the "Cancel Edit" button
+        btnCancelEdit.setOnClickListener(v -> {
+            toggleEditMode(false);
+            // Reload the profile to revert changes
+            loadProfile();
+            Toast.makeText(getContext(), "Changes cancelled", Toast.LENGTH_SHORT).show();
+        });
 
         // Setup the "Add Emergency Contact" button
         btnAddEmergencyContact.setOnClickListener(v -> addEmergencyContactInput("", ""));
@@ -67,31 +90,81 @@ public class ProfileFragment extends Fragment {
         return view;
     }
 
+    private void toggleEditMode(boolean enable) {
+        isEditMode = enable;
+
+        // Enable/disable all input fields
+        etName.setEnabled(enable);
+        etAge.setEnabled(enable);
+        etBloodGroup.setEnabled(enable);
+        etConditions.setEnabled(enable);
+        etAllergies.setEnabled(enable);
+
+        // Update visual appearance of TextInputLayouts
+        updateTextInputLayoutState(tilName, enable);
+        updateTextInputLayoutState(tilAge, enable);
+        updateTextInputLayoutState(tilBloodGroup, enable);
+        updateTextInputLayoutState(tilConditions, enable);
+        updateTextInputLayoutState(tilAllergies, enable);
+
+        // Enable/disable emergency contact buttons
+        btnAddEmergencyContact.setEnabled(enable);
+
+        // Show/hide buttons
+        btnEdit.setVisibility(enable ? View.GONE : View.VISIBLE);
+        btnCancelEdit.setVisibility(enable ? View.VISIBLE : View.GONE);
+        btnSave.setEnabled(enable);
+
+        // Enable/disable remove buttons on existing emergency contacts
+        for (EmergencyContactView contactView : contactViews) {
+            contactView.removeButton.setEnabled(enable);
+        }
+    }
+
+    private void updateTextInputLayoutState(TextInputLayout til, boolean enabled) {
+        // Simply enable/disable the TextInputLayout
+        // Material Design will automatically handle the color changes
+        til.setEnabled(enabled);
+    }
+
     private void loadProfile() {
         UserProfile profile = dbHelper.getProfile();
+
+        // Clear existing contact views
+        emergencyContactsContainer.removeAllViews();
+        contactViews.clear();
+
         if (profile != null && profile.id > 0) {
             // Fill in the user details
-            etName.setText(profile.name);
-            etAge.setText(String.valueOf(profile.age));
-            etBloodGroup.setText(profile.bloodGroup);
-            etConditions.setText(profile.conditions);
-            etAllergies.setText(profile.allergies);
+            etName.setText(profile.name != null ? profile.name : "");
+            etAge.setText(profile.age > 0 ? String.valueOf(profile.age) : "");
+            etBloodGroup.setText(profile.bloodGroup != null ? profile.bloodGroup : "");
+            etConditions.setText(profile.conditions != null ? profile.conditions : "");
+            etAllergies.setText(profile.allergies != null ? profile.allergies : "");
 
             // Load all emergency contacts
             List<EmergencyContact> contacts = dbHelper.getEmergencyContacts(profile.id);
             if (contacts != null && !contacts.isEmpty()) {
                 for (EmergencyContact contact : contacts) {
-                    addEmergencyContactInput(contact.name, contact.phone);
+                    addEmergencyContactInput(contact.name, contact.phone, false);
                 }
             } else {
-                addEmergencyContactInput("", "");
+                addEmergencyContactInput("", "", false);
             }
         } else {
-            addEmergencyContactInput("", "");
+            // Empty profile - show one empty contact field
+            addEmergencyContactInput("", "", false);
         }
+
+        // If in edit mode, keep fields editable; otherwise keep them disabled
+        toggleEditMode(isEditMode);
     }
 
     private void addEmergencyContactInput(String name, String phone) {
+        addEmergencyContactInput(name, phone, true);
+    }
+
+    private void addEmergencyContactInput(String name, String phone, boolean addToList) {
         View contactView = LayoutInflater.from(getContext())
                 .inflate(R.layout.item_emergency_contact, emergencyContactsContainer, false);
 
@@ -99,17 +172,27 @@ public class ProfileFragment extends Fragment {
         TextInputEditText etContactPhone = contactView.findViewById(R.id.et_contact_phone);
         MaterialButton btnRemove = contactView.findViewById(R.id.btn_remove_contact);
 
-        etContactName.setText(name);
-        etContactPhone.setText(phone);
+        etContactName.setText(name != null ? name : "");
+        etContactPhone.setText(phone != null ? phone : "");
+
+        // Set enabled state based on edit mode
+        etContactName.setEnabled(isEditMode);
+        etContactPhone.setEnabled(isEditMode);
+        btnRemove.setEnabled(isEditMode);
 
         btnRemove.setOnClickListener(v -> {
-            emergencyContactsContainer.removeView(contactView);
-            contactViews.remove(getContactViewIndex(contactView));
-            Toast.makeText(getContext(), "Contact removed", Toast.LENGTH_SHORT).show();
+            if (isEditMode) {
+                emergencyContactsContainer.removeView(contactView);
+                contactViews.remove(getContactViewIndex(contactView));
+                Toast.makeText(getContext(), "Contact removed", Toast.LENGTH_SHORT).show();
+            }
         });
 
         emergencyContactsContainer.addView(contactView);
-        contactViews.add(new EmergencyContactView(contactView, etContactName, etContactPhone));
+
+        if (addToList) {
+            contactViews.add(new EmergencyContactView(contactView, etContactName, etContactPhone, btnRemove));
+        }
     }
 
     private int getContactViewIndex(View view) {
@@ -122,17 +205,45 @@ public class ProfileFragment extends Fragment {
     }
 
     private void saveProfile() {
-        try {
-            // 1. Save the main profile
-            UserProfile profile = new UserProfile();
-            profile.name = etName.getText().toString().trim();
+        if (!isEditMode) {
+            Toast.makeText(getContext(), "Click Edit to modify profile", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-            try {
-                profile.age = Integer.parseInt(etAge.getText().toString().trim());
-            } catch (NumberFormatException e) {
-                profile.age = 0;
+        try {
+            // Validate inputs
+            String name = etName.getText().toString().trim();
+            if (name.isEmpty()) {
+                Toast.makeText(getContext(), "Please enter your name", Toast.LENGTH_SHORT).show();
+                etName.requestFocus();
+                return;
             }
 
+            String ageStr = etAge.getText().toString().trim();
+            if (ageStr.isEmpty()) {
+                Toast.makeText(getContext(), "Please enter your age", Toast.LENGTH_SHORT).show();
+                etAge.requestFocus();
+                return;
+            }
+
+            int age;
+            try {
+                age = Integer.parseInt(ageStr);
+                if (age < 1 || age > 150) {
+                    Toast.makeText(getContext(), "Please enter a valid age (1-150)", Toast.LENGTH_SHORT).show();
+                    etAge.requestFocus();
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                Toast.makeText(getContext(), "Please enter a valid age", Toast.LENGTH_SHORT).show();
+                etAge.requestFocus();
+                return;
+            }
+
+            // 1. Save the main profile
+            UserProfile profile = new UserProfile();
+            profile.name = name;
+            profile.age = age;
             profile.bloodGroup = etBloodGroup.getText().toString().trim();
             profile.conditions = etConditions.getText().toString().trim();
             profile.allergies = etAllergies.getText().toString().trim();
@@ -147,11 +258,15 @@ public class ProfileFragment extends Fragment {
 
                 List<EmergencyContact> contacts = getAllEmergencyContacts();
                 for (EmergencyContact contact : contacts) {
-                    contact.profileId = profileId;
+                    contact.profileId = (int) profileId;
                     dbHelper.saveEmergencyContact(contact);
                 }
 
                 Toast.makeText(getContext(), "✅ Profile saved with " + contacts.size() + " emergency contacts!", Toast.LENGTH_LONG).show();
+
+                // Exit edit mode after save
+                toggleEditMode(false);
+                loadProfile(); // Reload to ensure consistency
             } else {
                 Toast.makeText(getContext(), "❌ Failed to save profile. Please try again.", Toast.LENGTH_SHORT).show();
             }
@@ -168,6 +283,7 @@ public class ProfileFragment extends Fragment {
             String name = contactView.nameInput.getText().toString().trim();
             String phone = contactView.phoneInput.getText().toString().trim();
 
+            // Only add if at least one field has data
             if (!name.isEmpty() || !phone.isEmpty()) {
                 EmergencyContact contact = new EmergencyContact();
                 contact.name = name;
@@ -175,6 +291,7 @@ public class ProfileFragment extends Fragment {
                 contacts.add(contact);
             }
         }
+
         return contacts;
     }
 
@@ -182,11 +299,13 @@ public class ProfileFragment extends Fragment {
         View rootView;
         TextInputEditText nameInput;
         TextInputEditText phoneInput;
+        MaterialButton removeButton;
 
-        EmergencyContactView(View root, TextInputEditText name, TextInputEditText phone) {
+        EmergencyContactView(View root, TextInputEditText name, TextInputEditText phone, MaterialButton remove) {
             this.rootView = root;
             this.nameInput = name;
             this.phoneInput = phone;
+            this.removeButton = remove;
         }
     }
 }
